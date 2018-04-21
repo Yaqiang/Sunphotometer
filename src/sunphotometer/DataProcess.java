@@ -49,7 +49,14 @@ public class DataProcess {
                 break;
             }
             //Reda data header
-            DataHeader dh = new DataHeader(r);
+            DataHeader dh;
+            try {
+                dh = new DataHeader(r);
+            } catch (IOException e){
+                e.printStackTrace();
+                break;
+            }
+
             if (!dh.isValidDate()) {
                 r.skipBytes(dh.rec_size - 10);
                 continue;
@@ -307,12 +314,12 @@ public class DataProcess {
 
         RandomAccessFile bw = new RandomAccessFile(outFileName, "rw");
         byte[] data;
-        DataHeader dh;
+        DataHeader dh = null;
         List<String> dataList = new ArrayList<>();
         String line;
         int i = 0;
         for (String fn : fileNames) {
-            //System.out.println(fn);
+            System.out.println(fn);
             RandomAccessFile r = new RandomAccessFile(fn, "r");
             byte[] fh = new byte[256];
             r.read(fh);
@@ -324,8 +331,12 @@ public class DataProcess {
                 if (r.getFilePointer() >= r.length()) {
                     break;
                 }
-                //Reda data header
-                dh = new DataHeader(r);
+                //Read data header
+                try{
+                    dh = new DataHeader(r);
+                } catch (IOException e){
+                    break;
+                }
                 if (!dh.isValidDate()) {
                     r.skipBytes(dh.rec_size - 10);
                     continue;
